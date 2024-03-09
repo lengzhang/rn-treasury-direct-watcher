@@ -1,5 +1,10 @@
-import Router from "@/router";
+import AppContexts from "@/AppContexts";
+import Router from "@/Router";
 
-const App = () => <Router />;
+const App = () => (
+  <AppContexts>
+    <Router />
+  </AppContexts>
+);
 
 export default App;

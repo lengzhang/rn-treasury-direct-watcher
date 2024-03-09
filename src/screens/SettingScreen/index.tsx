@@ -8,7 +8,10 @@ const SettingScreen: React.FC<NativeStackScreenProps<ParamListBase>> = ({
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Text>Setting Screen</Text>
-      <Button title="Got to home" onPress={() => navigation.navigate("Home")} />
+      <Button
+        title="Got to home"
+        onPress={() => navigation.navigate("Manage watchers")}
+      />
     </View>
   );
 };
