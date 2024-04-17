@@ -94,7 +94,7 @@ export function parseIssueDate(date: Date) {
   return `${month}/${day}/${year}`;
 }
 
-export function parseOriginalSecurityTerm(term: string) {
+export function parsesecurityTerm(term: string) {
   const obj = term
     .split(" ")
     .map((v) => v.split("-"))

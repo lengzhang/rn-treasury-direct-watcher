@@ -3,7 +3,8 @@ import { SECURITY_TYPES_TYPE, Security } from "@/types/TreasuryDirect";
 import { deepMerge } from "@/utils";
 import {
   getAnnouncedSecurities,
-  parseOriginalSecurityTerm,
+  parseIssueDate,
+  parsesecurityTerm,
   searchSecurities,
 } from "@/utils/treasuryDirect";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -137,28 +138,49 @@ const useTreasuryDirectContextProvider = () => {
     try {
       dispatch({ type: "fetchingData" });
       console.log("start getting securities");
-      const securities = await searchSecurities({});
       const types = new Set<string>();
       const terms: TermsType = Object.create(null);
       const securityMap: SecuritiesType = Object.create(null);
 
-      for (const security of securities) {
-        const { cusip, issueDate, type, originalSecurityTerm } = security;
-        if (!originalSecurityTerm) break;
-        types.add(type);
-        if (!terms[type]) terms[type] = Object.create(null);
-        if (!terms[type][originalSecurityTerm]) {
-          terms[type][originalSecurityTerm] = {
-            ...parseOriginalSecurityTerm(originalSecurityTerm),
-            term: originalSecurityTerm,
-            securities: [],
-          };
-        }
+      const termSet = new Set<string>();
 
-        const id = `${cusip}_${issueDate}`;
-        terms[type][originalSecurityTerm].securities.push(id);
-        securityMap[id] = { ...security };
+      for (let pageNum = 0; true; pageNum++) {
+        console.log("Fetching page number ", pageNum);
+        const securities = await searchSecurities({
+          pageNum,
+          pageSize: 500,
+          endIssueDate: new Date(),
+        });
+        console.log(`Got ${securities.length} securities.`);
+        if (!securities?.length) break;
+
+        for (const security of securities) {
+          const { cusip, issueDate, type, securityTerm } = security;
+          termSet.add(securityTerm);
+          if (!securityTerm) break;
+          types.add(type);
+          if (!terms[type]) terms[type] = Object.create(null);
+          if (!terms[type][securityTerm]) {
+            terms[type][securityTerm] = {
+              ...parsesecurityTerm(securityTerm),
+              term: securityTerm,
+              securities: [],
+            };
+          }
+
+          const id = `${cusip}_${issueDate}`;
+          terms[type][securityTerm].securities.push(id);
+          securityMap[id] = { ...security };
+        }
       }
+
+      // console.log(terms["Bill"]["13-Week"].securities.join(","));
+
+      // for (const type of types) {
+      //   console.log(type);
+      //   console.log(Object.keys(terms[type]));
+      // }
+      // console.log(termSet);
       dispatch({
         type: shouldOverwrite ? "overwrite-data" : "merge-data",
         types,
@@ -226,8 +248,10 @@ const useTreasuryDirectContextProvider = () => {
   }
 
   async function refetchData() {
-    await AsyncStorage.clear();
-    await getTreasuryDirectData(true);
+    if (state.initialized && !state.isFetchingData) {
+      await AsyncStorage.clear();
+      await getTreasuryDirectData(true);
+    }
   }
 
   return {
@@ -236,10 +260,10 @@ const useTreasuryDirectContextProvider = () => {
   };
 };
 
+export default useTreasuryDirectContextProvider;
+
 export const treasuryDirectContext = createContext<
   ReturnType<typeof useTreasuryDirectContextProvider>
 >({ ...initialState, refetchData: async () => {} });
 
 export const useTreasuryDirectContext = () => useContext(treasuryDirectContext);
-
-export default useTreasuryDirectContextProvider;
