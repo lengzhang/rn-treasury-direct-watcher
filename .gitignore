@@ -7,6 +7,8 @@ node_modules/
 .expo/
 dist/
 web-build/
+ios/
+android/
 
 # Native
 *.orig.*
@@ -28,8 +30,14 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# Windows
+%ProgramData%
+
 # local env files
 .env*.local
 
 # typescript
 *.tsbuildinfo
+
+# VS Code
+.vscode
