@@ -4,14 +4,21 @@ import { StatusBar } from 'expo-status-bar'
 import { FC, PropsWithChildren } from 'react'
 
 import { DataContextProvider } from './contexts/DataContext'
+import { SettingContextProvider, useSettingContext } from './contexts/SettingContext'
 
 const AppWithMyContexts: FC<PropsWithChildren> = ({ children }) => {
-    return <DataContextProvider>{children}</DataContextProvider>
+    return (
+        <SettingContextProvider>
+            <DataContextProvider>{children}</DataContextProvider>
+        </SettingContextProvider>
+    )
 }
 
 const AppWithThirdPartyContexts: FC<PropsWithChildren> = ({ children }) => {
+    const { finalColorMode } = useSettingContext()
+
     return (
-        <GluestackUIProvider config={config}>
+        <GluestackUIProvider config={config} colorMode={finalColorMode}>
             <StatusBar style="auto" />
             {children}
         </GluestackUIProvider>

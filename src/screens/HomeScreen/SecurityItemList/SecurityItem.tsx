@@ -1,6 +1,6 @@
 import { Text, Card, HStack, Box, Heading, useToken, Icon } from '@gluestack-ui/themed'
 import { TrendingDownIcon, TrendingUpIcon } from 'lucide-react-native'
-import { FC, memo, useMemo } from 'react'
+import { ComponentProps, FC, memo, useMemo } from 'react'
 
 import { useDataContext } from '@/contexts/DataContext'
 
@@ -9,10 +9,12 @@ const FieldBlock: FC<{ label: string; value?: string; color?: string }> = ({
     value,
     color
 }) => {
+    const textProps: ComponentProps<typeof Text> = color ? { color } : {}
+
     return (
         <Box>
             <Heading sub>{label}</Heading>
-            <Text color={color}>{value || ' '}</Text>
+            <Text {...textProps}>{value || ' '}</Text>
         </Box>
     )
 }

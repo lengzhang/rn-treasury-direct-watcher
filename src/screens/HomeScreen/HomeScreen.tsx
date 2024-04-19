@@ -8,12 +8,15 @@ import {
     Spinner,
     Text
 } from '@gluestack-ui/themed'
+import { FC } from 'react'
 
 import SecurityItem from './SecurityItemList'
 import SecurityTypeTermController from './SecurityTypeTermController'
 import useHomeScreen from './useHomeScreen'
 
-const HomeScreen = () => {
+import { HomeScreenComponentType } from '@/Router'
+
+const HomeScreen: FC<HomeScreenComponentType> = () => {
     const { initialized, type, term, securityIds, isFetching, onSelectType, onSelectTerm } =
         useHomeScreen()
 

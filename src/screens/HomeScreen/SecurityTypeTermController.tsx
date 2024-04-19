@@ -1,8 +1,37 @@
-import { Box, HStack, Pressable, ScrollView, Text } from '@gluestack-ui/themed'
-import { ComponentProps, FC, useMemo } from 'react'
+import {
+    Box,
+    Button,
+    ButtonIcon,
+    ButtonText,
+    HStack,
+    Pressable,
+    ScrollView,
+    Text
+} from '@gluestack-ui/themed'
+import { useNavigation } from '@react-navigation/native'
+import { MenuIcon } from 'lucide-react-native'
+import { ComponentProps, FC, memo, useMemo } from 'react'
 
+import { StackNavigation } from '@/Router'
 import { SECURITY_TYPE_TERM_MAPPER, SECURITY_TYPES } from '@/constants/treasuryDirect'
 import { SECURITY_TYPES_TYPE } from '@/types/treasuryDirect'
+
+const MenuButton = memo(() => {
+    const navigation = useNavigation<StackNavigation>()
+
+    return (
+        <Button
+            size="xs"
+            variant="outline"
+            marginRight="$2"
+            onPress={() => {
+                navigation.navigate('Menu')
+            }}>
+            <ButtonIcon as={MenuIcon} marginRight="$2" />
+            <ButtonText>Menu</ButtonText>
+        </Button>
+    )
+})
 
 const TabText: FC<{ isSelected: boolean; text: string; sub?: boolean }> = ({
     isSelected,
@@ -29,7 +58,7 @@ const SecurityTypeTermController: FC<SecurityTypeTermControllerProps> = (props) 
 
     return (
         <Box>
-            <Box>
+            <HStack alignItems="center">
                 <ScrollView horizontal bounces>
                     <HStack
                         alignItems="center"
@@ -43,7 +72,8 @@ const SecurityTypeTermController: FC<SecurityTypeTermControllerProps> = (props) 
                         ))}
                     </HStack>
                 </ScrollView>
-            </Box>
+                <MenuButton />
+            </HStack>
             <Box>
                 <ScrollView horizontal bounces>
                     <HStack
