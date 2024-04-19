@@ -211,6 +211,7 @@ const useDataContextProvider = () => {
 
     async function clearAllData() {
         await AsyncStorage.clear()
+        dispatch({ type: 'initialized', storedState: { ...initialState } })
     }
 
     return { ...state, getRecentTreasuryDirectData, getTreasuryDirectData, clearAllData }

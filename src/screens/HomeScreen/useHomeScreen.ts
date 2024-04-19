@@ -125,7 +125,7 @@ const useHomeScreen = () => {
         if (!dataContext.initialized) return []
         const ids = __.sort((a, b) => {
             return b.replace(SECURITY_ID_REGEX, '').localeCompare(a.replace(SECURITY_ID_REGEX, ''))
-        }, dataContext.securityTypeTermMapper[state.type][state.term]?.securities || [])
+        }, dataContext.securityTypeTermMapper?.[state.type]?.[state.term]?.securities || [])
         return ids
     }, [dataContext.initialized, dataContext.securityTypeTermMapper, state.type, state.term])
 

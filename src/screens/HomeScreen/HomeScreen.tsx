@@ -34,17 +34,17 @@ const HomeScreen: FC<HomeScreenComponentType> = () => {
                         onSelectTerm={onSelectTerm}
                     />
                     <Divider />
-                    <SecurityItem ids={securityIds} />
+                    {!isFetching && <SecurityItem ids={securityIds} />}
                     <Modal isOpen={isFetching}>
                         <ModalBackdrop />
                         <Card>
                             <Center>
                                 <Spinner />
                                 <Text marginTop="$1" size="md">
-                                    Retrieving all data from TreasuryDirect...
+                                    Retrieving data from TreasuryDirect...
                                 </Text>
                                 <Text size="xs" color="$warning500" italic>
-                                    This process will take some time. Please be patient.
+                                    This process may take some time. Please be patient.
                                 </Text>
                             </Center>
                         </Card>
