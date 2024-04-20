@@ -4,6 +4,7 @@
     "main": "src/App.tsx",
     "scripts": {
         "start": "expo start",
+        "dev": "expo start --dev-client",
         "android": "expo start --android",
         "ios": "expo start --ios",
         "web": "expo start --web",
@@ -11,7 +12,13 @@
         "lint": "eslint .",
         "lint:fix": "eslint --fix .",
         "prettier:check": "prettier . --check",
-        "prettier:write": "prettier . --write"
+        "prettier:write": "prettier . --write",
+        "build:ios:dev": "eas build --platform ios --profile development",
+        "build:ios:preview": "eas build --platform ios --profile preview",
+        "build:ios:prod": "eas build --platform ios --profile production",
+        "submit:ios:prod": "eas submit --platform ios --profile production",
+        "update:ios:prod": "eas update --channel production",
+        "update:ios:preview": "eas update --channel preview"
     },
     "dependencies": {
         "@gluestack-style/react": "^1.0.52",
@@ -21,7 +28,10 @@
         "@react-navigation/native": "^6.1.17",
         "@react-navigation/native-stack": "^6.9.26",
         "expo": "~50.0.8",
+        "expo-dev-client": "~3.3.11",
+        "expo-splash-screen": "~0.26.4",
         "expo-status-bar": "~1.11.1",
+        "expo-updates": "~0.24.12",
         "lucide-react-native": "^0.371.0",
         "ramda": "^0.29.1",
         "react": "18.2.0",

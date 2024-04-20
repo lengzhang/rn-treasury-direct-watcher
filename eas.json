@@ -1,0 +1,40 @@
+{
+    "cli": {
+        "version": ">= 7.8.2",
+        "appVersionSource": "remote"
+    },
+    "build": {
+        "base": {
+            "distribution": "internal",
+            "ios": {
+                "image": "latest"
+            }
+        },
+        "development": {
+            "extends": "base",
+            "developmentClient": true,
+            "env": {
+                "APP_ENV": "development"
+            }
+        },
+        "preview": {
+            "extends": "base",
+            "channel": "preview",
+            "env": {
+                "APP_ENV": "preview"
+            }
+        },
+        "production": {
+            "extends": "base",
+            "channel": "production",
+            "distribution": "store",
+            "autoIncrement": true,
+            "env": {
+                "APP_ENV": "production"
+            }
+        }
+    },
+    "submit": {
+        "production": {}
+    }
+}
