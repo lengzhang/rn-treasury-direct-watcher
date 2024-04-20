@@ -11,7 +11,7 @@ module.exports = {
         userInterfaceStyle: 'automatic',
         splash: {
             image: './assets/splash.png',
-            resizeMode: 'contain',
+            resizeMode: 'cover',
             backgroundColor: '#00000'
         },
         assetBundlePatterns: ['**/*'],
@@ -22,7 +22,7 @@ module.exports = {
         android: {
             adaptiveIcon: {
                 foregroundImage: './assets/adaptive-icon.png',
-                backgroundColor: '#ffffff'
+                backgroundColor: '#00000'
             }
         },
         web: {

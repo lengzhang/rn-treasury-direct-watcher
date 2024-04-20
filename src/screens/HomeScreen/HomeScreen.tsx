@@ -17,7 +17,7 @@ import useHomeScreen from './useHomeScreen'
 import { HomeScreenComponentType } from '@/Router'
 
 const HomeScreen: FC<HomeScreenComponentType> = () => {
-    const { initialized, type, term, securityIds, isFetching, onSelectType, onSelectTerm } =
+    const { initialized, type, term, securityIds, isFetchingAll, onSelectType, onSelectTerm } =
         useHomeScreen()
 
     return (
@@ -34,8 +34,8 @@ const HomeScreen: FC<HomeScreenComponentType> = () => {
                         onSelectTerm={onSelectTerm}
                     />
                     <Divider />
-                    {!isFetching && <SecurityItem ids={securityIds} />}
-                    <Modal isOpen={isFetching}>
+                    <SecurityItem ids={securityIds} />
+                    <Modal isOpen={isFetchingAll}>
                         <ModalBackdrop />
                         <Card>
                             <Center>

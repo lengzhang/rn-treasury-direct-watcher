@@ -21,7 +21,8 @@ export type SecuritiesType = Record<string, Security>
 
 export interface State {
     initialized: boolean
-    isFetching: boolean
+    isFetchingLatest: boolean
+    isFetchingAll: boolean
     securityTypeTermMapper: SecurityTypeTermMapperType
     securityMapper: Record<string, Security>
     lastUpdatedAt: number
@@ -33,8 +34,8 @@ export type Action =
           storedState?: Pick<State, 'securityTypeTermMapper' | 'securityMapper' | 'lastUpdatedAt'>
       }
     | {
-          type: 'set-is-fetching'
-          isFetching: boolean
+          type: 'set-is-fetching-latest' | 'set-is-fetching-all'
+          value: boolean
       }
     | ({
           type: 'merge-data'

@@ -15,7 +15,8 @@ import { getAnnouncedSecurities, parseSecurityTerm, searchSecurities } from '@/u
 
 const initialState: State = {
     initialized: false,
-    isFetching: false,
+    isFetchingLatest: false,
+    isFetchingAll: false,
     securityTypeTermMapper: Object.create(null),
     securityMapper: Object.create(null),
     lastUpdatedAt: 0
@@ -30,8 +31,11 @@ const reducer = (state: State, action: Action): State => {
                 initialized: true
             }
 
-        case 'set-is-fetching':
-            return { ...state, isFetching: action.isFetching }
+        case 'set-is-fetching-latest':
+            return { ...state, isFetchingLatest: action.value }
+
+        case 'set-is-fetching-all':
+            return { ...state, isFetchingAll: action.value }
 
         case 'merge-data':
             return {
@@ -59,14 +63,14 @@ const useDataContextProvider = () => {
 
     // When data is outage
     useEffect(() => {
-        if (state.initialized && !state.isFetching) {
+        if (state.initialized && !state.isFetchingLatest && !state.isFetchingAll) {
             if (Date.now() - state.lastUpdatedAt > ONE_DAY_OFFSET) {
                 getRecentTreasuryDirectData()
             } else {
                 persistDataToStorage()
             }
         }
-    }, [state.initialized, state.isFetching, state.lastUpdatedAt])
+    }, [state.initialized, state.isFetchingLatest, state.isFetchingAll, state.lastUpdatedAt])
 
     async function persistDataToStorage() {
         try {
@@ -115,9 +119,9 @@ const useDataContextProvider = () => {
     }
 
     async function getRecentTreasuryDirectData(days: number = DEFAULT_RECENT_FETCH_DAYS) {
-        if (state.isFetching) return
+        if (state.isFetchingLatest) return
 
-        dispatch({ type: 'set-is-fetching', isFetching: true })
+        dispatch({ type: 'set-is-fetching-latest', value: true })
 
         try {
             console.log('Start getting recent securities from Treasury Direct')
@@ -160,13 +164,13 @@ const useDataContextProvider = () => {
         } catch (error) {
             console.error('Unable to fetch treasury direct data: ', error)
         }
-        dispatch({ type: 'set-is-fetching', isFetching: false })
+        dispatch({ type: 'set-is-fetching-latest', value: false })
     }
 
     async function getTreasuryDirectData() {
-        if (state.isFetching) return
+        if (state.isFetchingAll) return
 
-        dispatch({ type: 'set-is-fetching', isFetching: true })
+        dispatch({ type: 'set-is-fetching-all', value: true })
         try {
             console.log('Start getting securities from Treasury Direct')
             const { securityTypeTermMapper, securityMapper } = __.clone(initialState)
@@ -206,7 +210,7 @@ const useDataContextProvider = () => {
         } catch (error) {
             console.error('Unable to fetch treasury direct data: ', error)
         }
-        dispatch({ type: 'set-is-fetching', isFetching: false })
+        dispatch({ type: 'set-is-fetching-all', value: false })
     }
 
     async function clearAllData() {

@@ -132,7 +132,7 @@ const useHomeScreen = () => {
     return {
         ...state,
         securityIds,
-        isFetching: dataContext.isFetching,
+        isFetchingAll: dataContext.isFetchingAll,
         onSelectType,
         onSelectTerm
     }

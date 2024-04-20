@@ -4,17 +4,17 @@ import { ComponentProps, FC, memo, useMemo } from 'react'
 
 import { useDataContext } from '@/contexts/DataContext'
 
-const FieldBlock: FC<{ label: string; value?: string; color?: string }> = ({
-    label,
-    value,
-    color
-}) => {
+const FieldBlock: FC<
+    { label: string; value?: string; color?: string } & ComponentProps<typeof Box>
+> = ({ label, value, color, ...boxProps }) => {
     const textProps: ComponentProps<typeof Text> = color ? { color } : {}
 
     return (
-        <Box>
+        <Box {...boxProps}>
             <Heading sub>{label}</Heading>
-            <Text {...textProps}>{value || ' '}</Text>
+            <Text {...textProps} numberOfLines={1} ellipsizeMode="clip">
+                {value || ' '}
+            </Text>
         </Box>
     )
 }
@@ -44,7 +44,7 @@ const SecurityItem: FC<SecurityItemProps> = ({ id, prevId }) => {
 
     if (!security) return null
 
-    const announcementDate = security.announcementDate.replace(/T.+$/, '')
+    const announcementDate = security.auctionDate.replace(/T.+$/, '')
     const issueDate = security.issueDate.replace(/T.+$/, '')
     const price = security.pricePer100
         ? '$' + security.pricePer100.toString().replace(/0+$/, '')
@@ -63,17 +63,24 @@ const SecurityItem: FC<SecurityItemProps> = ({ id, prevId }) => {
             marginVertical="$0"
             padding="$2"
             variant="outline">
-            <HStack space="sm" flexWrap="wrap" alignItems="center">
+            <HStack space="sm" flexWrap="nowrap" alignItems="center">
                 <Icon
                     as={
                         !rateChange ? undefined : rateChange > 0 ? TrendingUpIcon : TrendingDownIcon
                     }
                     color={color}
+                    marginLeft="-$2"
                 />
-                <FieldBlock label="Auction date" value={announcementDate} />
-                <FieldBlock label="Issue date" value={issueDate} />
-                <FieldBlock label="Price" value={price} color={color} />
-                <FieldBlock label="Rate" value={rate} color={color} />
+                <HStack flex={1} space="xs" flexWrap="wrap">
+                    <HStack flex={6} space="xs" flexWrap="nowrap">
+                        <FieldBlock flex={1} label="Auction date" value={announcementDate} />
+                        <FieldBlock flex={1} label="Issue date" value={issueDate} />
+                    </HStack>
+                    <HStack flex={5} space="xs" flexWrap="nowrap">
+                        <FieldBlock flex={3} label="Price" value={price} color={color} />
+                        <FieldBlock flex={2} label="Rate" value={rate} color={color} />
+                    </HStack>
+                </HStack>
             </HStack>
         </Card>
     )

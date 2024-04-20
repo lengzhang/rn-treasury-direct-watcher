@@ -1,5 +1,4 @@
 import {
-    Box,
     Button,
     ButtonText,
     Divider,
@@ -18,7 +17,11 @@ import { SECURITY_TYPES } from '@/constants/treasuryDirect'
 import { useDataContext } from '@/contexts/DataContext'
 
 const DataManagementScreen = () => {
-    const { securityTypeTermMapper, clearAllData } = useDataContext()
+    const { securityTypeTermMapper, getRecentTreasuryDirectData, clearAllData } = useDataContext()
+
+    const onPressGetLatestData = async () => {
+        await getRecentTreasuryDirectData()
+    }
 
     const securityCountsMapper = useMemo(
         () =>
@@ -60,17 +63,22 @@ const DataManagementScreen = () => {
                     )
                 })}
             </VStack>
-            <Box marginTop="$5">
-                <Button variant="solid" onPress={clearAllData}>
-                    <ButtonText>Clear all data</ButtonText>
-                </Button>
-                <HStack justifyContent="center" alignItems="center" marginTop="$1">
-                    <Icon as={InfoIcon} size="xs" marginRight="$1" color="$warning500" />
-                    <Text sub italic bold color="$warning500">
-                        Recent data will be retrieved after clearing.
-                    </Text>
-                </HStack>
-            </Box>
+            <Button
+                variant="solid"
+                onPress={onPressGetLatestData}
+                marginTop="$10"
+                action="positive">
+                <ButtonText>Retrieve latest data</ButtonText>
+            </Button>
+            <Button variant="solid" onPress={clearAllData} marginTop="$5">
+                <ButtonText>Clear all data</ButtonText>
+            </Button>
+            <HStack justifyContent="center" alignItems="center" marginTop="$1">
+                <Icon as={InfoIcon} size="xs" marginRight="$1" color="$warning500" />
+                <Text sub italic bold color="$warning500">
+                    Recent data will be retrieved after clearing.
+                </Text>
+            </HStack>
         </ScrollView>
     )
 }
