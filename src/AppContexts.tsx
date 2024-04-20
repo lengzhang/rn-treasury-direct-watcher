@@ -5,6 +5,7 @@ import { FC, PropsWithChildren } from 'react'
 
 import { DataContextProvider } from './contexts/DataContext'
 import { SettingContextProvider, useSettingContext } from './contexts/SettingContext'
+import useSplashScreen from './hooks/useSplashScreen'
 
 const AppWithMyContexts: FC<PropsWithChildren> = ({ children }) => {
     return (
@@ -15,7 +16,8 @@ const AppWithMyContexts: FC<PropsWithChildren> = ({ children }) => {
 }
 
 const AppWithThirdPartyContexts: FC<PropsWithChildren> = ({ children }) => {
-    const { finalColorMode } = useSettingContext()
+    const { initialized, finalColorMode } = useSettingContext()
+    useSplashScreen(initialized)
     const statusBarStyle: StatusBarStyle =
         finalColorMode === 'light' ? 'dark' : finalColorMode === 'dark' ? 'light' : 'auto'
 

@@ -52,18 +52,17 @@ const useSettingContextProvider = () => {
     }, [state.initialized, state.colorMode])
 
     async function restoreData() {
+        let colorMode: COLORMODES | undefined = undefined
         try {
             const [colorModePair] = await AsyncStorage.multiGet([STORAGE_KEY_COLOR_MODE])
-            let colorMode: COLORMODES | undefined = undefined
             if (colorModePair[1] === 'light' || colorModePair[1] === 'dark') {
                 colorMode = colorModePair[1]
             }
-
-            dispatch({ type: 'initialized', colorMode })
+            console.log('useSettingContextProvider => Success restore color mode')
         } catch (error) {
             console.warn('Unable to retrieve storage data', error)
-            dispatch({ type: 'initialized' })
         }
+        dispatch({ type: 'initialized', colorMode })
     }
 
     async function persistData() {
