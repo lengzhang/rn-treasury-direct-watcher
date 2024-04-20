@@ -72,6 +72,7 @@ const useSettingContextProvider = () => {
             else {
                 await AsyncStorage.setItem(STORAGE_KEY_COLOR_MODE, state.colorMode)
             }
+            console.log('useSettingContextProvider => Success persist color mode')
         } catch (error) {
             console.warn('Unable to store data', error)
         }
