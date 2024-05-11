@@ -1,27 +1,14 @@
-import {
-    Button,
-    ButtonText,
-    Divider,
-    Heading,
-    HStack,
-    Icon,
-    InfoIcon,
-    ScrollView,
-    Text,
-    VStack
-} from '@gluestack-ui/themed'
+import { Divider, Heading, HStack, ScrollView, VStack } from '@gluestack-ui/themed'
 import __ from 'ramda'
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
+
+import Controller from './Controller'
 
 import { SECURITY_TYPES } from '@/constants/treasuryDirect'
 import { useDataContext } from '@/contexts/DataContext'
 
 const DataManagementScreen = () => {
-    const { securityTypeTermMapper, getRecentTreasuryDirectData, clearAllData } = useDataContext()
-
-    const onPressGetLatestData = async () => {
-        await getRecentTreasuryDirectData()
-    }
+    const { securityTypeTermMapper } = useDataContext()
 
     const securityCountsMapper = useMemo(
         () =>
@@ -34,51 +21,40 @@ const DataManagementScreen = () => {
         [securityTypeTermMapper]
     )
 
-    const items = SECURITY_TYPES.reduce<string[]>((acc, type, index) => {
-        if (index > 0) acc.push('DIVIDER')
-        acc.push(type)
-        return acc
-    }, [])
-
-    return (
-        <ScrollView
-            padding="$5"
-            flex={1}
-            $light-backgroundColor="$white"
-            $dark-backgroundColor="$backgroundDark900">
-            <VStack space="md">
-                {items.map((type, index) => {
-                    if (type === 'DIVIDER') return <Divider key={`${type}_${index}`} />
-
-                    return (
-                        <HStack key={`${type}_${index}`}>
-                            <Heading flex={1}>{type}</Heading>
-                            <Heading flex={3} textAlign="right">
+    const dataList = useMemo(
+        () => (
+            <VStack
+                paddingTop="$5"
+                space="md"
+                $light-backgroundColor="$white"
+                $dark-backgroundColor="$backgroundDark900">
+                {SECURITY_TYPES.map((type, index) => (
+                    <Fragment key={`${type}_${index}`}>
+                        <HStack paddingHorizontal="$3">
+                            <Heading flex={1} size="sm">
+                                {type}
+                            </Heading>
+                            <Heading flex={3} size="sm" textAlign="right">
                                 {securityCountsMapper[type]}
                             </Heading>
-                            <Heading flex={3} marginLeft="$2">
+                            <Heading flex={3} size="sm" marginLeft="$2">
                                 securities
                             </Heading>
                         </HStack>
-                    )
-                })}
+                        <Divider key={`${type}_${index}`} />
+                    </Fragment>
+                ))}
             </VStack>
-            <Button
-                variant="solid"
-                onPress={onPressGetLatestData}
-                marginTop="$10"
-                action="positive">
-                <ButtonText>Retrieve latest data</ButtonText>
-            </Button>
-            <Button variant="solid" onPress={clearAllData} marginTop="$5">
-                <ButtonText>Clear all data</ButtonText>
-            </Button>
-            <HStack justifyContent="center" alignItems="center" marginTop="$1">
-                <Icon as={InfoIcon} size="xs" marginRight="$1" color="$warning500" />
-                <Text sub italic bold color="$warning500">
-                    Recent data will be retrieved after clearing.
-                </Text>
-            </HStack>
+        ),
+        [securityCountsMapper]
+    )
+
+    return (
+        <ScrollView flex={1}>
+            <VStack space="2xl">
+                {dataList}
+                <Controller />
+            </VStack>
         </ScrollView>
     )
 }
