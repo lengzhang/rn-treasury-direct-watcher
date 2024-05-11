@@ -1,6 +1,7 @@
 import { SECURITY_TYPES_TYPE } from '@/types/treasuryDirect'
 
-export const SECURITY_TYPES: SECURITY_TYPES_TYPE[] = ['Bill', 'Note', 'Bond', 'CMB', 'TIPS', 'FRN']
+// export const SECURITY_TYPES: SECURITY_TYPES_TYPE[] = ['Bill', 'Note', 'Bond', 'CMB', 'TIPS', 'FRN']
+export const SECURITY_TYPES: SECURITY_TYPES_TYPE[] = ['Bill', 'Note', 'Bond', 'TIPS', 'FRN']
 
 export const SECURITY_TYPE_TERM_MAPPER: Record<SECURITY_TYPES_TYPE, string[]> = {
     Bill: ['4-Week', '8-Week', '13-Week', '17-Week', '26-Week', '52-Week'],
