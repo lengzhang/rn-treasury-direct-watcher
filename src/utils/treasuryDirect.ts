@@ -5,7 +5,7 @@ export const SECURITIES_BASE_URL = `${TD_BASE_URL}/securities`
 
 export const DATE_FORMAT = 'YYYY-MM-DD'
 
-interface GetAnnouncedSecuritiesParams {
+interface GetSecuritiesParams {
     type?: SECURITY_TYPES_TYPE
     pageSize?: number
     days?: number
@@ -14,8 +14,23 @@ export async function getAnnouncedSecurities({
     type,
     pageSize = 250,
     days = 1
-}: GetAnnouncedSecuritiesParams): Promise<Security[]> {
+}: GetSecuritiesParams): Promise<Security[]> {
     const url = new URL(`${SECURITIES_BASE_URL}/announced`)
+    url.searchParams.set('format', 'json')
+    if (type) url.searchParams.set('type', type)
+    url.searchParams.set('pagesize', pageSize.toString())
+    url.searchParams.set('days', days.toString())
+
+    const res = await fetch(url)
+    const data = await res.json()
+    return data
+}
+export async function getUpcomingSecurities({
+    type,
+    pageSize = 250,
+    days = 1
+}: GetSecuritiesParams): Promise<Security[]> {
+    const url = new URL(`${SECURITIES_BASE_URL}/upcoming`)
     url.searchParams.set('format', 'json')
     if (type) url.searchParams.set('type', type)
     url.searchParams.set('pagesize', pageSize.toString())

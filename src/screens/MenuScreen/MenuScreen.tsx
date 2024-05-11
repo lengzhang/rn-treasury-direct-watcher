@@ -23,7 +23,7 @@ const MenuScreen: FC<MenuScreenComponentType> = () => {
                         borderRadius="$none"
                         marginTop="$2"
                         $dark-backgroundColor={
-                            pressed ? '$backgroundDark950' : '$backgroundDark900'
+                            pressed ? '$backgroundDark800' : '$backgroundDark900'
                         }
                         $light-backgroundColor={
                             pressed ? '$backgroundLight50' : '$backgroundLight0'
