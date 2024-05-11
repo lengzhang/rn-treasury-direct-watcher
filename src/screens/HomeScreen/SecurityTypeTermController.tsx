@@ -1,37 +1,10 @@
-import {
-    Box,
-    Button,
-    ButtonIcon,
-    ButtonText,
-    HStack,
-    Pressable,
-    ScrollView,
-    Text
-} from '@gluestack-ui/themed'
-import { useNavigation } from '@react-navigation/native'
-import { MenuIcon } from 'lucide-react-native'
-import { ComponentProps, FC, memo, useMemo } from 'react'
+import { Box, HStack, Pressable, ScrollView, Text } from '@gluestack-ui/themed'
+import { ComponentProps, FC, useEffect, useMemo } from 'react'
 
-import { StackNavigation } from '@/Router'
+import MenuButton from '@/components/MenuButton'
 import { SECURITY_TYPE_TERM_MAPPER, SECURITY_TYPES } from '@/constants/treasuryDirect'
+import { useDataContext } from '@/contexts/DataContext'
 import { SECURITY_TYPES_TYPE } from '@/types/treasuryDirect'
-
-const MenuButton = memo(() => {
-    const navigation = useNavigation<StackNavigation>()
-
-    return (
-        <Button
-            size="xs"
-            variant="outline"
-            marginRight="$2"
-            onPress={() => {
-                navigation.navigate('Menu')
-            }}>
-            <ButtonIcon as={MenuIcon} marginRight="$2" />
-            <ButtonText>Menu</ButtonText>
-        </Button>
-    )
-})
 
 const TabText: FC<{ isSelected: boolean; text: string; sub?: boolean }> = ({
     isSelected,
@@ -52,9 +25,19 @@ interface SecurityTypeTermControllerProps {
 }
 
 const SecurityTypeTermController: FC<SecurityTypeTermControllerProps> = (props) => {
+    const { securityTypeTermMapper } = useDataContext()
+
     const terms = useMemo(() => {
-        return SECURITY_TYPE_TERM_MAPPER[props.type] || []
-    }, [props.type])
+        return (SECURITY_TYPE_TERM_MAPPER[props.type] || []).filter(
+            (term) => securityTypeTermMapper[props.type]?.[term]?.securities?.length > 0
+        )
+    }, [props.type, securityTypeTermMapper])
+
+    useEffect(() => {
+        if (terms.length > 0 && !terms.includes(props.term)) {
+            props.onSelectTerm(terms[0])()
+        }
+    }, [props.term, terms])
 
     return (
         <Box>

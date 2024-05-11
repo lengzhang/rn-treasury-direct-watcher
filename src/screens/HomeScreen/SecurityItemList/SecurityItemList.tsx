@@ -1,32 +1,91 @@
 import {
     Box,
-    Button,
-    ButtonText,
-    Center,
     Heading,
     HStack,
     Icon,
-    RefreshControl
+    RefreshControl,
+    VStack,
+    Text,
+    Alert,
+    AlertIcon
 } from '@gluestack-ui/themed'
-import { ArrowDownIcon } from 'lucide-react-native'
+import { useIsFocused } from '@react-navigation/native'
+import { ArrowDownIcon, ArrowRight, InfoIcon } from 'lucide-react-native'
 import __ from 'ramda'
-import { FC, memo, useCallback } from 'react'
+import React, { FC, Fragment, memo, useCallback } from 'react'
 import { FlatList, ListRenderItem } from 'react-native'
 
 import SecurityItem from './SecurityItem'
 
+import MenuButton from '@/components/MenuButton'
 import { useDataContext } from '@/contexts/DataContext'
 
+const NOTICE_MESSAGE: (string | React.JSX.Element)[] = [
+    'Please',
+    'go',
+    <MenuButton />,
+    <Icon as={ArrowRight} />,
+    'Data',
+    'management',
+    'to',
+    'retrieve',
+    'more',
+    'data',
+    'from',
+    'Treasury',
+    'DIrect.'
+]
+
 const TDRefeshControl = memo(() => {
+    const isFocused = useIsFocused()
     const { isFetchingLatest, getRecentTreasuryDirectData } = useDataContext()
 
     return (
         <RefreshControl
-            refreshing={isFetchingLatest}
+            refreshing={isFocused && isFetchingLatest}
             onRefresh={() => {
                 getRecentTreasuryDirectData()
             }}
         />
+    )
+})
+
+const PullDownNotice: FC<{ text: string }> = memo(({ text }) => {
+    return (
+        <HStack
+            justifyContent="center"
+            alignItems="center"
+            space="md"
+            $light-backgroundColor="$blueGray200"
+            $dark-backgroundColor="$blueGray700">
+            <Icon as={ArrowDownIcon} size="2xs" />
+            <Heading bold sub italic>
+                {text}
+            </Heading>
+            <Icon as={ArrowDownIcon} size="2xs" />
+        </HStack>
+    )
+})
+
+const NeedMoreDataNotice = memo(() => {
+    return (
+        <Alert margin="$5" action="info" variant="accent">
+            <AlertIcon as={InfoIcon} marginRight="$3" />
+            <VStack space="sm" flex={1}>
+                <Text size="sm">Need more data?</Text>
+                <HStack alignItems="center" space="xs" flexWrap="wrap">
+                    {NOTICE_MESSAGE.map((elem, index) =>
+                        typeof elem === 'string' ? (
+                            <Text key={index} size="sm">
+                                {elem}
+                            </Text>
+                        ) : (
+                            <Fragment key={index}>{elem}</Fragment>
+                        )
+                    )}
+                </HStack>
+            </VStack>
+        </Alert>
     )
 })
 
@@ -35,7 +94,7 @@ interface SecurityItemListProps {
 }
 
 const SecurityItemList: FC<SecurityItemListProps> = ({ ids }) => {
-    const { isFetchingLatest, isFetchingAll, getTreasuryDirectData } = useDataContext()
+    const { isFetchingLatest } = useDataContext()
 
     const keyExtractor = useCallback((id: string, index: number) => `${id}_${index}`, [])
 
@@ -44,40 +103,13 @@ const SecurityItemList: FC<SecurityItemListProps> = ({ ids }) => {
         : 'Pull down to fetch latest securities'
 
     const renderItem: ListRenderItem<string> = useCallback(
-        ({ item, index }) => {
-            return (
-                <>
-                    {index === 0 && (
-                        <HStack
-                            justifyContent="center"
-                            alignItems="center"
-                            space="md"
-                            $light-backgroundColor="$blueGray200"
-                            $dark-backgroundColor="$blueGray700">
-                            <Icon as={ArrowDownIcon} size="2xs" />
-                            <Heading bold sub italic>
-                                {headerText}
-                            </Heading>
-                            <Icon as={ArrowDownIcon} size="2xs" />
-                        </HStack>
-                    )}
-                    <SecurityItem key={item} id={item} prevId={ids[index + 1]} />
-                    {index === ids.length - 1 && (
-                        <Center>
-                            <Button
-                                variant="outline"
-                                marginTop="$3"
-                                size="md"
-                                action={isFetchingAll ? 'secondary' : 'primary'}
-                                disabled={isFetchingAll}
-                                onPress={getTreasuryDirectData}>
-                                <ButtonText>Retrieve more data from Treasury Direct</ButtonText>
-                            </Button>
-                        </Center>
-                    )}
-                </>
-            )
-        },
+        ({ item, index }) => (
+            <Fragment key={item + index}>
+                {index === 0 && <PullDownNotice text={headerText} />}
+                <SecurityItem key={item} id={item} prevId={ids[index + 1]} />
+                {index === ids.length - 1 && <NeedMoreDataNotice />}
+            </Fragment>
+        ),
         [ids, headerText]
     )
 
