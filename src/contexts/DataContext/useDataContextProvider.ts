@@ -40,11 +40,11 @@ const reducer = (state: State, action: Action): State => {
         case 'merge-data':
             return {
                 ...state,
-                securityTypeTermMapper: __.mergeAll([
+                securityTypeTermMapper: __.mergeDeepRight(
                     state.securityTypeTermMapper,
                     action.securityTypeTermMapper
-                ]),
-                securityMapper: __.mergeAll([state.securityMapper, action.securityMapper]),
+                ),
+                securityMapper: __.mergeDeepRight(state.securityMapper, action.securityMapper),
                 lastUpdatedAt: Date.now()
             }
 
