@@ -7,7 +7,8 @@ import {
     VStack,
     Text,
     Alert,
-    AlertIcon
+    AlertIcon,
+    useToken
 } from '@gluestack-ui/themed'
 import { useIsFocused } from '@react-navigation/native'
 import { ArrowDownIcon, ArrowRight, InfoIcon } from 'lucide-react-native'
@@ -17,28 +18,16 @@ import { FlatList, ListRenderItem } from 'react-native'
 
 import SecurityItem from './SecurityItem'
 
-import MenuButton from '@/components/MenuButton'
 import { useDataContext } from '@/contexts/DataContext'
+import { useSettingContext } from '@/contexts/SettingContext'
 
-const NOTICE_MESSAGE: (string | React.JSX.Element)[] = [
-    'Please',
-    'go',
-    <MenuButton />,
-    <Icon as={ArrowRight} />,
-    'Data',
-    'management',
-    'to',
-    'retrieve',
-    'more',
-    'data',
-    'from',
-    'Treasury',
-    'DIrect.'
-]
-
-const TDRefeshControl = memo(() => {
+const TDRefreshControl = memo(() => {
     const isFocused = useIsFocused()
     const { isFetchingLatest, getRecentTreasuryDirectData } = useDataContext()
+
+    const blueGray200 = useToken('colors', 'blueGray200')
+    const { colorMode } = useSettingContext()
+    const tintColor = colorMode === 'dark' ? blueGray200 : undefined
 
     return (
         <RefreshControl
@@ -46,6 +35,7 @@ const TDRefeshControl = memo(() => {
             onRefresh={() => {
                 getRecentTreasuryDirectData()
             }}
+            tintColor={tintColor}
         />
     )
 })
@@ -73,17 +63,10 @@ const NeedMoreDataNotice = memo(() => {
             <AlertIcon as={InfoIcon} marginRight="$3" />
             <VStack space="sm" flex={1}>
                 <Text size="sm">Need more data?</Text>
-                <HStack alignItems="center" space="xs" flexWrap="wrap">
-                    {NOTICE_MESSAGE.map((elem, index) =>
-                        typeof elem === 'string' ? (
-                            <Text key={index} size="sm">
-                                {elem}
-                            </Text>
-                        ) : (
-                            <Fragment key={index}>{elem}</Fragment>
-                        )
-                    )}
-                </HStack>
+                <Text size="sm">
+                    Please go <Text italic>Menu</Text> <Icon as={ArrowRight} size="sm" />{' '}
+                    <Text italic>Data management</Text> to retrieve more data from Treasury Direct.
+                </Text>
             </VStack>
         </Alert>
     )
@@ -121,7 +104,7 @@ const SecurityItemList: FC<SecurityItemListProps> = ({ ids }) => {
                 renderItem={renderItem}
                 initialNumToRender={50}
                 removeClippedSubviews
-                refreshControl={<TDRefeshControl />}
+                refreshControl={<TDRefreshControl />}
             />
         </Box>
     )

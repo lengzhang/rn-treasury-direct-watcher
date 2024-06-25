@@ -46,20 +46,34 @@ const ControllerPressable: FC<ControllerPressableProps> = ({ onPress, text }) =>
     )
 }
 
+const ConfirmActionsheetItem: FC<
+    PropsWithChildren &
+        ComponentProps<typeof ActionsheetItem> &
+        Pick<ComponentProps<typeof ActionsheetItemText>, 'color'>
+> = ({ children, color, ...props }) => {
+    return (
+        <ActionsheetItem justifyContent="center" {...props}>
+            <ActionsheetItemText color={color} size="xl" fontWeight="$medium">
+                {children}
+            </ActionsheetItemText>
+        </ActionsheetItem>
+    )
+}
+
 const ConfirmActionsheet: FC<
     PropsWithChildren & Pick<ComponentProps<typeof Actionsheet>, 'isOpen' | 'onClose'>
 > = ({ children, isOpen, onClose }) => {
     return (
-        <Actionsheet isOpen={isOpen} onClose={onClose} zIndex={999} snapPoints={[15]}>
+        <Actionsheet isOpen={isOpen} onClose={onClose} zIndex={999}>
             <ActionsheetBackdrop />
             <ActionsheetContent>
                 <ActionsheetDragIndicatorWrapper>
                     <ActionsheetDragIndicator />
                 </ActionsheetDragIndicatorWrapper>
                 {children}
-                <ActionsheetItem onPress={onClose}>
-                    <ActionsheetItemText>Cancel</ActionsheetItemText>
-                </ActionsheetItem>
+                <ConfirmActionsheetItem onPress={onClose} marginBottom="$5">
+                    Cancel
+                </ConfirmActionsheetItem>
             </ActionsheetContent>
         </Actionsheet>
     )
@@ -120,16 +134,16 @@ const Controller = () => {
             <ConfirmActionsheet
                 isOpen={selectedButton === 'retrieve-all-data'}
                 onClose={onChangeSelectedButton('')}>
-                <ActionsheetItem onPress={onPressGetAllData}>
-                    <ActionsheetItemText color="$primary500">Retrieve all data</ActionsheetItemText>
-                </ActionsheetItem>
+                <ConfirmActionsheetItem onPress={onPressGetAllData} color="$primary500">
+                    Retrieve all data
+                </ConfirmActionsheetItem>
             </ConfirmActionsheet>
             <ConfirmActionsheet
                 isOpen={selectedButton === 'clear-all-data'}
                 onClose={onChangeSelectedButton('')}>
-                <ActionsheetItem onPress={onPressClearAllData}>
-                    <ActionsheetItemText color="$error500">Clear all data</ActionsheetItemText>
-                </ActionsheetItem>
+                <ConfirmActionsheetItem onPress={onPressClearAllData} color="$error500">
+                    Clear all data
+                </ConfirmActionsheetItem>
             </ConfirmActionsheet>
             {(isFetchingLatest || isFetchingAll) && (
                 <Modal isOpen>
