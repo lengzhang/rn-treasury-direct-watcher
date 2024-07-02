@@ -4,20 +4,6 @@ import { FC, memo } from 'react'
 
 import SecurityFieldBlock from '@/components/SecurityFieldBlock'
 import { Security } from '@/types/treasuryDirect'
-
-const getSecurityInfo = (security: Security) => {
-    return {
-        announcementDate: security.auctionDate.replace(/T.+$/, ''),
-        issueDate: security.issueDate.replace(/T.+$/, ''),
-        maturityDate: security.maturityDate.replace(/T.+$/, ''),
-        price: security.pricePer100
-            ? '$' + security.pricePer100.toString().replace(/0+$/, '').replace(/\.+$/, '')
-            : '------',
-        discountMargin: security.highDiscountMargin
-            ? security.highDiscountMargin.toString().replace(/0+$/, '').replace(/\.+$/, '') + '%'
-            : '------'
-    }
-}
 const getSecurityRate = (security: Security) => {
     switch (security.type) {
         case 'Bill':
@@ -34,6 +20,22 @@ const getSecurityRate = (security: Security) => {
     }
 }
 
+const getSecurityInfo = (security: Security) => {
+    const rate = getSecurityRate(security)
+    return {
+        announcementDate: security.auctionDate.replace(/T.+$/, ''),
+        issueDate: security.issueDate.replace(/T.+$/, ''),
+        maturityDate: security.maturityDate.replace(/T.+$/, ''),
+        price: security.pricePer100
+            ? '$' + security.pricePer100.toString().replace(/0+$/, '').replace(/\.+$/, '')
+            : '------',
+        discountMargin: security.highDiscountMargin
+            ? security.highDiscountMargin.toString().replace(/0+$/, '').replace(/\.+$/, '') + '%'
+            : '------',
+        rate: rate ? rate.toString().replace(/0+$/, '').replace(/\.+$/, '') + '%' : '------'
+    }
+}
+
 interface SecurityItemBlockProps {
     security: Security
     prevSecurity?: Security | null
@@ -43,22 +45,20 @@ const SecurityItemBlock: FC<SecurityItemBlockProps> = ({ security, prevSecurity 
     const green = useToken('colors', 'green500')
     const red = useToken('colors', 'red500')
 
-    const { issueDate, maturityDate, price, discountMargin } = getSecurityInfo(security)
+    const { issueDate, maturityDate, price, discountMargin, rate } = getSecurityInfo(security)
 
-    const rate = getSecurityRate(security)
-    const prevRate = prevSecurity ? getSecurityRate(prevSecurity) : null
+    const priceDiff =
+        security.pricePer100 && prevSecurity?.pricePer100
+            ? parseFloat(prevSecurity.pricePer100) - parseFloat(security.pricePer100)
+            : null
 
-    const rateChange = rate && prevRate ? parseFloat(rate) - parseFloat(prevRate) : null
+    const color = !priceDiff ? undefined : priceDiff > 0 ? green : red
 
-    const color = !rateChange ? undefined : rateChange > 0 ? green : red
-
-    const icon: LucideIcon | undefined = !rateChange
+    const icon: LucideIcon | undefined = !priceDiff
         ? undefined
-        : rateChange > 0
+        : priceDiff > 0
           ? TrendingUpIcon
           : TrendingDownIcon
-
-    const rateText = rate ? rate.toString().replace(/0+$/, '').replace(/\.+$/, '') + '%' : '------'
 
     return (
         <HStack space="sm" flexWrap="nowrap" alignItems="center">
@@ -82,7 +82,7 @@ const SecurityItemBlock: FC<SecurityItemBlockProps> = ({ security, prevSecurity 
                     <SecurityFieldBlock
                         flex={2}
                         label={security.type === 'FRN' ? 'Spread' : 'Rate'}
-                        value={rateText}
+                        value={rate}
                         color={color}
                     />
                 </HStack>
