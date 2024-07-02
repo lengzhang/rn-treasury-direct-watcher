@@ -17,6 +17,7 @@ import { ArrowDownIcon, ArrowRight, InfoIcon } from 'lucide-react-native'
 import React, { FC, Fragment, memo, useCallback } from 'react'
 import { FlatList, ListRenderItem } from 'react-native'
 
+import DataChart from './DataChart'
 import SecurityItem from './SecurityItem'
 
 import FetchingOldDataAlert from '@/components/FetchingOldDataAlert'
@@ -124,7 +125,12 @@ const SecurityItemList: FC<SecurityItemListProps> = ({ ids, isLoading }) => {
                 initialNumToRender={50}
                 removeClippedSubviews
                 refreshControl={<TDRefreshControl />}
-                ListHeaderComponent={<PullDownNotice />}
+                ListHeaderComponent={
+                    <>
+                        <PullDownNotice />
+                        <DataChart ids={isLoading ? [] : ids} />
+                    </>
+                }
                 ListFooterComponent={isLoading ? null : <NeedMoreDataNotice />}
                 ListEmptyComponent={isLoading ? <LoadingDataNotice /> : null}
             />
