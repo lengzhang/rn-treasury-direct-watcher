@@ -1,33 +1,37 @@
 import {
+    Alert,
+    AlertIcon,
     Box,
+    Center,
     Heading,
     HStack,
     Icon,
     RefreshControl,
-    VStack,
+    Spinner,
     Text,
-    Alert,
-    AlertIcon,
-    useToken
+    useToken,
+    VStack
 } from '@gluestack-ui/themed'
 import { useIsFocused } from '@react-navigation/native'
 import { ArrowDownIcon, ArrowRight, InfoIcon } from 'lucide-react-native'
-import __ from 'ramda'
 import React, { FC, Fragment, memo, useCallback } from 'react'
 import { FlatList, ListRenderItem } from 'react-native'
 
 import SecurityItem from './SecurityItem'
 
+import FetchingOldDataAlert from '@/components/FetchingOldDataAlert'
 import { useDataContext } from '@/contexts/DataContext'
 import { useSettingContext } from '@/contexts/SettingContext'
 
 const TDRefreshControl = memo(() => {
     const isFocused = useIsFocused()
-    const { isFetchingLatest, getRecentTreasuryDirectData } = useDataContext()
+    const { isFetchingLatest, oldDataPageNum, getRecentTreasuryDirectData } = useDataContext()
 
     const blueGray200 = useToken('colors', 'blueGray200')
     const { colorMode } = useSettingContext()
     const tintColor = colorMode === 'dark' ? blueGray200 : undefined
+
+    if (oldDataPageNum !== -1) return null
 
     return (
         <RefreshControl
@@ -40,7 +44,15 @@ const TDRefreshControl = memo(() => {
     )
 })
 
-const PullDownNotice: FC<{ text: string }> = memo(({ text }) => {
+const PullDownNotice: FC = memo(() => {
+    const { isFetchingLatest, oldDataPageNum } = useDataContext()
+
+    if (oldDataPageNum !== -1) return null
+
+    const text = isFetchingLatest
+        ? 'Fetching latest securities ...'
+        : 'Pull down to fetch latest securities'
+
     return (
         <HStack
             justifyContent="center"
@@ -72,44 +84,53 @@ const NeedMoreDataNotice = memo(() => {
     )
 })
 
+const LoadingDataNotice = memo(() => {
+    return (
+        <Center flex={1} height="$56">
+            <Spinner size="large" />
+            <Heading marginTop="$2">Loading data...</Heading>
+        </Center>
+    )
+})
+
 interface SecurityItemListProps {
     ids: string[]
+    isLoading?: boolean
 }
 
-const SecurityItemList: FC<SecurityItemListProps> = ({ ids }) => {
-    const { isFetchingLatest } = useDataContext()
+const SecurityItemList: FC<SecurityItemListProps> = ({ ids, isLoading }) => {
+    const { securityMapper } = useDataContext()
 
-    const keyExtractor = useCallback((id: string, index: number) => `${id}_${index}`, [])
-
-    const headerText = isFetchingLatest
-        ? 'Fetching latest securities ...'
-        : 'Pull down to fetch latest securities'
+    const keyExtractor = useCallback(
+        (id: string, index: number) => `${id}_${index}_${securityMapper[id]?.pricePer100 || 0}`,
+        [securityMapper]
+    )
 
     const renderItem: ListRenderItem<string> = useCallback(
-        ({ item, index }) => (
-            <Fragment key={item + index}>
-                {index === 0 && <PullDownNotice text={headerText} />}
-                <SecurityItem key={item} id={item} prevId={ids[index + 1]} />
-                {index === ids.length - 1 && <NeedMoreDataNotice />}
+        ({ item: id, index }) => (
+            <Fragment key={id + index}>
+                <SecurityItem key={id} id={id} prevId={ids[index + 1]} />
             </Fragment>
         ),
-        [ids, headerText]
+        [ids]
     )
 
     return (
         <Box flex={1}>
             <FlatList
-                data={ids}
+                data={isLoading ? [] : ids}
                 keyExtractor={keyExtractor}
                 renderItem={renderItem}
                 initialNumToRender={50}
                 removeClippedSubviews
                 refreshControl={<TDRefreshControl />}
+                ListHeaderComponent={<PullDownNotice />}
+                ListFooterComponent={isLoading ? null : <NeedMoreDataNotice />}
+                ListEmptyComponent={isLoading ? <LoadingDataNotice /> : null}
             />
+            <FetchingOldDataAlert />
         </Box>
     )
 }
 
-export default memo(SecurityItemList, (prevProps, nextProps) =>
-    __.equals(prevProps.ids, nextProps.ids)
-)
+export default memo(SecurityItemList)

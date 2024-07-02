@@ -21,11 +21,10 @@ export type SecuritiesType = Record<string, Security>
 
 export interface State {
     initialized: boolean
-    isFetchingLatest: boolean
-    isFetchingAll: boolean
     securityTypeTermMapper: SecurityTypeTermMapperType
     securityMapper: Record<string, Security>
     lastUpdatedAt: number
+    oldDataPageNum: number
 }
 
 export type Action =
@@ -33,10 +32,10 @@ export type Action =
           type: 'initialized'
           storedState?: Pick<State, 'securityTypeTermMapper' | 'securityMapper' | 'lastUpdatedAt'>
       }
-    | {
-          type: 'set-is-fetching-latest' | 'set-is-fetching-all'
-          value: boolean
-      }
     | ({
           type: 'merge-data'
       } & Pick<State, 'securityTypeTermMapper' | 'securityMapper'>)
+    | {
+          type: 'set-old-data-page-number'
+          value: number
+      }

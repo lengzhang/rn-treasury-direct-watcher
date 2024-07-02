@@ -27,11 +27,7 @@
         "production": {
             "extends": "base",
             "channel": "production",
-            "distribution": "store",
-            "autoIncrement": true,
-            "env": {
-                "APP_ENV": "production"
-            }
+            "distribution": "store"
         }
     },
     "submit": {

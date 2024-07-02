@@ -1,10 +1,10 @@
 module.exports = {
     expo: {
-        name: `TD Watcher${process.env.APP_ENV === 'production' ? '' : ` (${process.env.APP_ENV})`}`,
+        name: process.env.APP_ENV ? `TD Watcher (${process.env.APP_ENV})` : 'TD Watcher',
         description:
             'This application provides visibility to client for Treasury Direct securities.',
         slug: 'treasury-direct-watcher',
-        version: '0.0.0',
+        version: '1.0.0',
         githubUrl: 'https://github.com/lengzhang/rn-treasury-direct-watcher',
         orientation: 'portrait',
         icon: './assets/icon.png',
@@ -17,7 +17,12 @@ module.exports = {
         assetBundlePatterns: ['**/*'],
         ios: {
             supportsTablet: true,
-            bundleIdentifier: 'com.lengzhang.treasury-direct-watcher'
+            bundleIdentifier:
+                process.env.APP_ENV === 'development'
+                    ? 'com.lengzhang.treasury-direct-watcher-dev'
+                    : process.env.APP_ENV === 'preview'
+                      ? 'com.lengzhang.treasury-direct-watcher-pre'
+                      : 'com.lengzhang.treasury-direct-watcher'
         },
         android: {
             adaptiveIcon: {

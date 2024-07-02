@@ -1,13 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
-import __ from 'ramda'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 
 import { SECURITY_TYPE_TERM_MAPPER, SECURITY_TYPES } from '@/constants/treasuryDirect'
 import { useDataContext } from '@/contexts/DataContext'
 import { SECURITY_TYPES_TYPE } from '@/types/treasuryDirect'
-
-const SECURITY_ID_REGEX = new RegExp(/^.+_/)
 
 const STORAGE_KEYS = {
     SELECTED_TYPE: 'SELECTED_TYPE',
@@ -18,17 +15,20 @@ interface State {
     initialized: boolean
     type: SECURITY_TYPES_TYPE
     term: string
+    isLoading: boolean
 }
 
 type Action =
     | { type: 'initialized'; value?: Pick<State, 'type' | 'term'> }
     | { type: 'set-type'; value: SECURITY_TYPES_TYPE }
     | { type: 'set-term'; value: string }
+    | { type: 'set-is-loading'; value: boolean }
 
 const initialState: State = {
     initialized: false,
     type: SECURITY_TYPES[0],
-    term: SECURITY_TYPE_TERM_MAPPER[SECURITY_TYPES[0]][0]
+    term: SECURITY_TYPE_TERM_MAPPER[SECURITY_TYPES[0]][0],
+    isLoading: false
 }
 
 const reducer = (state: State, action: Action): State => {
@@ -45,6 +45,9 @@ const reducer = (state: State, action: Action): State => {
 
         case 'set-term':
             return { ...state, term: action.value }
+
+        case 'set-is-loading':
+            return { ...state, isLoading: action.value }
 
         default:
             return state
@@ -84,6 +87,8 @@ const useHomeScreen = () => {
         } catch (error) {
             console.error('useHomeScreen => Persist state failed: ', error)
         }
+
+        dispatch({ type: 'set-is-loading', value: false })
     }
 
     async function retrieveStateFromStorage() {
@@ -114,25 +119,20 @@ const useHomeScreen = () => {
     const onSelectType = (value: SECURITY_TYPES_TYPE) => () => {
         if (value === state.type) return
         dispatch({ type: 'set-type', value })
+        dispatch({ type: 'set-is-loading', value: true })
     }
 
     const onSelectTerm = (value: string) => () => {
         if (value === state.term) return
         dispatch({ type: 'set-term', value })
+        dispatch({ type: 'set-is-loading', value: true })
     }
-
-    const securityIds = useMemo(() => {
-        if (!dataContext.initialized) return []
-        const ids = __.sort((a, b) => {
-            return b.replace(SECURITY_ID_REGEX, '').localeCompare(a.replace(SECURITY_ID_REGEX, ''))
-        }, dataContext.securityTypeTermMapper?.[state.type]?.[state.term]?.securities || [])
-        return ids
-    }, [dataContext.initialized, dataContext.securityTypeTermMapper, state.type, state.term])
 
     return {
         ...state,
-        securityIds,
-        isFetchingAll: dataContext.isFetchingAll,
+        securityIds: !dataContext.initialized
+            ? []
+            : dataContext.securityTypeTermMapper?.[state.type]?.[state.term]?.securities || [],
         onSelectType,
         onSelectTerm
     }
