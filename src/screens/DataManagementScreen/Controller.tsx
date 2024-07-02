@@ -6,38 +6,32 @@ import {
     ActionsheetDragIndicatorWrapper,
     ActionsheetItem,
     ActionsheetItemText,
-    Alert,
-    AlertIcon,
     Card,
     Divider,
     HStack,
     Icon,
     InfoIcon,
-    Modal,
-    ModalBackdrop,
-    Spinner,
     Text,
-    View,
-    VStack
+    View
 } from '@gluestack-ui/themed'
-import { ComponentProps, FC, memo, PropsWithChildren, useState } from 'react'
+import { FC, memo, useState } from 'react'
 import { Pressable, PressableProps } from 'react-native'
 
 import { useDataContext } from '@/contexts/DataContext'
 
-interface ControllerPressableProps extends Pick<PressableProps, 'onPress'> {
+interface ControllerPressableProps extends Pick<PressableProps, 'onPress' | 'disabled'> {
     text: string
 }
 
-const ControllerPressable: FC<ControllerPressableProps> = ({ onPress, text }) => {
+const ControllerPressable: FC<ControllerPressableProps> = ({ onPress, disabled, text }) => {
     return (
-        <Pressable onPress={onPress}>
+        <Pressable onPress={onPress} disabled={disabled}>
             {({ pressed }) => (
                 <View
                     $dark-backgroundColor={pressed ? '$backgroundDark800' : '$backgroundDark900'}
                     $light-backgroundColor={pressed ? '$backgroundLight50' : '$backgroundLight0'}
                     padding="$2">
-                    <Text color="$primary500" fontWeight="$medium">
+                    <Text color={disabled ? '$secondary500' : '$primary500'} fontWeight="$medium">
                         {text}
                     </Text>
                 </View>
@@ -46,118 +40,66 @@ const ControllerPressable: FC<ControllerPressableProps> = ({ onPress, text }) =>
     )
 }
 
-const ConfirmActionsheetItem: FC<
-    PropsWithChildren &
-        ComponentProps<typeof ActionsheetItem> &
-        Pick<ComponentProps<typeof ActionsheetItemText>, 'color'>
-> = ({ children, color, ...props }) => {
-    return (
-        <ActionsheetItem justifyContent="center" {...props}>
-            <ActionsheetItemText color={color} size="xl" fontWeight="$medium">
-                {children}
-            </ActionsheetItemText>
-        </ActionsheetItem>
-    )
-}
-
-const ConfirmActionsheet: FC<
-    PropsWithChildren & Pick<ComponentProps<typeof Actionsheet>, 'isOpen' | 'onClose'>
-> = ({ children, isOpen, onClose }) => {
-    return (
-        <Actionsheet isOpen={isOpen} onClose={onClose} zIndex={999}>
-            <ActionsheetBackdrop />
-            <ActionsheetContent>
-                <ActionsheetDragIndicatorWrapper>
-                    <ActionsheetDragIndicator />
-                </ActionsheetDragIndicatorWrapper>
-                {children}
-                <ConfirmActionsheetItem onPress={onClose} marginBottom="$5">
-                    Cancel
-                </ConfirmActionsheetItem>
-            </ActionsheetContent>
-        </Actionsheet>
-    )
-}
-
 const Controller = () => {
-    const [selectedButton, setSelectedButton] = useState<
-        'retrieve-all-data' | 'clear-all-data' | ''
-    >('')
+    const [isOpen, setIsOpen] = useState(false)
 
-    const {
-        isFetchingLatest,
-        isFetchingAll,
-        getRecentTreasuryDirectData,
-        getTreasuryDirectData,
-        clearAllData
-    } = useDataContext()
+    const { oldDataPageNum, refreshAllData } = useDataContext()
 
-    const onChangeSelectedButton = (type: 'retrieve-all-data' | 'clear-all-data' | '') => () => {
-        setSelectedButton(type)
+    const onOpen = () => {
+        setIsOpen(true)
     }
 
-    const onPressGetLatestData = async () => {
-        await getRecentTreasuryDirectData()
+    const onClose = () => {
+        setIsOpen(false)
     }
 
-    const onPressGetAllData = async () => {
-        onChangeSelectedButton('')()
-        await getTreasuryDirectData()
-    }
-
-    const onPressClearAllData = async () => {
-        onChangeSelectedButton('')()
-        await clearAllData()
+    const onRefreshAllData = async () => {
+        onClose()
+        await refreshAllData()
     }
 
     return (
         <>
-            <Card marginHorizontal="$2" padding="$2">
-                <ControllerPressable text="Retrieve latest data" onPress={onPressGetLatestData} />
-                <Divider />
+            <Card marginHorizontal="$2" marginTop="$10" padding="$1">
                 <ControllerPressable
-                    text="Retrieve all data"
-                    onPress={onChangeSelectedButton('retrieve-all-data')}
+                    text="Refresh all data"
+                    onPress={onOpen}
+                    disabled={oldDataPageNum !== -1}
                 />
-                <Divider />
-                <ControllerPressable
-                    text="Clear all data"
-                    onPress={onChangeSelectedButton('clear-all-data')}
-                />
-                <HStack justifyContent="flex-start" alignItems="center" marginTop="$1">
-                    <Icon as={InfoIcon} size="xs" marginRight="$1" color="$warning500" />
-                    <Text sub italic bold color="$warning500">
-                        Recent data will be retrieved after clearing.
-                    </Text>
-                </HStack>
             </Card>
-            <ConfirmActionsheet
-                isOpen={selectedButton === 'retrieve-all-data'}
-                onClose={onChangeSelectedButton('')}>
-                <ConfirmActionsheetItem onPress={onPressGetAllData} color="$primary500">
-                    Retrieve all data
-                </ConfirmActionsheetItem>
-            </ConfirmActionsheet>
-            <ConfirmActionsheet
-                isOpen={selectedButton === 'clear-all-data'}
-                onClose={onChangeSelectedButton('')}>
-                <ConfirmActionsheetItem onPress={onPressClearAllData} color="$error500">
-                    Clear all data
-                </ConfirmActionsheetItem>
-            </ConfirmActionsheet>
-            {(isFetchingLatest || isFetchingAll) && (
-                <Modal isOpen>
-                    <ModalBackdrop />
-                    <Alert action="info" variant="accent">
-                        <AlertIcon as={Spinner} marginRight="$3" />
-                        <VStack space="xs">
-                            <Text>Retrieving data from TreasuryDirect...</Text>
-                            <Text>This process may take some time.</Text>
-                            <Text>Please be patient.</Text>
-                        </VStack>
-                    </Alert>
-                </Modal>
-            )}
+            <Actionsheet isOpen={isOpen} onClose={onClose} zIndex={999}>
+                <ActionsheetBackdrop />
+                <ActionsheetContent paddingBottom="$5">
+                    <ActionsheetDragIndicatorWrapper>
+                        <ActionsheetDragIndicator />
+                    </ActionsheetDragIndicatorWrapper>
+
+                    <HStack justifyContent="flex-start" alignItems="flex-start" marginTop="$1">
+                        <Icon
+                            as={InfoIcon}
+                            size="xs"
+                            marginTop="$0.5"
+                            marginRight="$1"
+                            color="$warning400"
+                        />
+                        <Text sub italic bold color="$warning400">
+                            This action will erase all current data and retrieve all information
+                            again from Treasury Direct.
+                        </Text>
+                    </HStack>
+                    <Divider marginTop="$2" />
+                    <ActionsheetItem justifyContent="center" onPress={onRefreshAllData}>
+                        <ActionsheetItemText size="xl" fontWeight="$medium" color="$primary500">
+                            Refresh all data
+                        </ActionsheetItemText>
+                    </ActionsheetItem>
+                    <ActionsheetItem justifyContent="center" onPress={onClose}>
+                        <ActionsheetItemText size="xl" fontWeight="$medium">
+                            Cancel
+                        </ActionsheetItemText>
+                    </ActionsheetItem>
+                </ActionsheetContent>
+            </Actionsheet>
         </>
     )
 }
