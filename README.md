@@ -13,6 +13,10 @@ A React Native application for watching securities in Treasury Direct.
 -   [x] Manage securities data
 
     -   [x] Retrieve all securities from Treasury Direct
+       
+-   [ ] Chart for securities
+    -   [x] Add a chart on the top of security list
+    -   [ ] Add a new page for chart which shows comparison between terms
 
 -   [ ] Purchased securities (history)
 
